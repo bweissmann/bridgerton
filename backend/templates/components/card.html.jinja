@@ -1,0 +1,10 @@
+{% macro render_card(value, suit, color) %}
+<div class="rounded border bg-white w-16 h-24 flex flex-col px-1 justify-between {{ color }}">
+    <div class="flex justify-start"><span>{{value}}{{suit}}</span></div>
+    <div class="flex justify-end"><span>{{value}}{{suit}}</span></div>
+</div>
+{% endmacro %}
+
+{% macro render_cardback() %}
+<div class="rounded border w-16 h-24 bg-slate-500"></div>
+{% endmacro %}

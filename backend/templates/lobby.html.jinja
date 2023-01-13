@@ -1,0 +1,10 @@
+{% extends "layout.html.jinja" %}
+{% block title %} Lobby {% endblock %}
+{% block content %}
+<p>Join game</p>
+<div class="flex flex-col">
+    {% for invite in invites %}
+    <a href={{ url_for('play', token=invite.token) }}>Join as {{invite.direction.verbose()}}</a>
+    {% endfor %}
+</div>
+{% endblock %}
