@@ -1,0 +1,55 @@
+<div class="w-full h-full flex flex-col overflow-hidden py-6 px-2">
+    {# top #}
+    <div class="w-full flex justify-center">
+        <div class="w-fit">
+            <p class="font-semibold">{{ players.partner.verbose() }}{{ " (Dealer)" if game.dealer ==
+                players.partner
+                }}
+            </p>
+            <div class="flex -space-x-4">
+                {% for card in game.hands[players.partner].cards %}
+                {{ render_cardback() }}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {# sides #}
+    <div class="flex-1 w-full flex items-center justify-between">
+        <div class="flex flex-col items-start">
+            <p class="font-semibold">{{ players.left.verbose() }}{{ " (Dealer)" if game.dealer ==
+                players.left
+                }}
+            </p>
+            <div class="flex flex-col -space-y-14">
+                {% for card in game.hands[players.left].cards %}
+                {{ render_cardback() }}
+                {% endfor %}
+            </div>
+        </div>
+        <div class="flex flex-col items-end">
+            <p class="font-semibold">{{ players.right.verbose() }}{{ " (Dealer)" if game.dealer ==
+                players.right
+                }}
+            </p>
+            <div class="flex flex-col -space-y-14">
+                {% for card in game.hands[players.right].cards %}
+                {{ render_cardback() }}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {# bottom #}
+    <div class="w-full flex justify-center">
+        <div>
+            <p class="font-semibold">{{ players.you.verbose() }}{{ " (Dealer)" if game.dealer == players.you
+                }}
+            </p>
+            <p class="text-sm">{{game.hands[players.you].hcp}} HCP</p>
+            <div class="flex space-x-0.5">
+                {% for card in game.hands[players.you].cards %}
+                {{ render_card(card.value, card.suit.emoji(), card.suit.color()) }}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>

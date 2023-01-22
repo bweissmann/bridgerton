@@ -1,7 +1,8 @@
 from flask import Flask, redirect, render_template, url_for
 import os
+from flask import request
 
-from backend.game import create_game, get_player_directions, load_game
+from backend.game.game import create_game, get_player_directions, load_game
 from backend.invite import load_game_invites, load_invite_from_token
 
 
@@ -21,11 +22,6 @@ def create_app():
     def home():
         return render_template('home.html.jinja', id=id)
 
-    @app.route("/newgame", methods=["POST"])
-    def new():
-        game = create_game()
-        return redirect(url_for('lobby', id=game.id))
-
     @app.route("/lobby/<string:id>")
     def lobby(id):
         game_invites = load_game_invites(id)
@@ -43,9 +39,17 @@ def create_app():
 
         players = get_player_directions(invite.direction)
         game = load_game(invite.game_id)
-        return render_template('play.html.jinja', game=game, players=players)
+        return render_template('play.html.jinja', game=game, invite=invite, players=players)
+
+    @app.route("/newgame", methods=["POST"])
+    def new():
+        game = create_game()
+        return redirect(url_for('lobby', id=game.id))
 
     from . import db
     db.init_app(app)
+
+    from . import api
+    app.register_blueprint(api.bp)
 
     return app

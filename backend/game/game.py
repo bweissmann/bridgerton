@@ -3,37 +3,14 @@ import random
 
 from flask import flash
 from backend.db import get_db
+from backend.game.hand import Hand
 from backend.util import seed_random, generate_token
+from typing import Self
 from enum import Enum
 
-
-class Direction(Enum):
-    N = 'N'
-    S = 'S'
-    E = 'E'
-    W = 'W'
-
-    def verbose(self) -> str:
-        return _DIRECTIONS_VERBOSE[self]
-
-    def partner(self):
-        return _DIRECTION_PARTNERS[self]
-
-    def left(self):
-        return _DIRECTION_LEFT_OF[self]
-
-    def right(self):
-        return _DIRECTION_RIGHT_OF[self]
-
-
-_DIRECTION_PARTNERS = {Direction.N: Direction.S, Direction.S: Direction.N,
-                       Direction.E: Direction.W, Direction.W: Direction.E}
-_DIRECTIONS_VERBOSE = {Direction.N: 'North',
-                       Direction.S: 'South', Direction.E: 'East', Direction.W: 'West'}
-_DIRECTION_LEFT_OF = {Direction.N: Direction.E, Direction.S: Direction.W,
-                      Direction.E: Direction.S, Direction.W: Direction.N}
-_DIRECTION_RIGHT_OF = {Direction.N: Direction.W, Direction.S: Direction.E,
-                       Direction.E: Direction.N, Direction.W: Direction.S}
+from backend.game.direction import Direction
+from backend.game.card import Card
+from backend.game.bid import AdvancingBid, Bid, BidNumber, PassBid, Trump
 
 FRESH_DECK_IDS = [
     'AH', '2H', '3H', '4H', '5H', '6H', '7H', '8H', '9H', '0H', 'JH', 'QH', 'KH',
@@ -43,65 +20,51 @@ FRESH_DECK_IDS = [
 ]
 
 
-class Suit(Enum):
-    C = 'C'
-    D = 'D'
-    H = 'H'
-    S = 'S'
-
-    def emoji(self):
-        return _SUIT_EMOJIS[self]
-
-    def color(self):
-        return _SUIT_COLORS[self]
-
-
-_SUIT_EMOJIS = {Suit.H: '♥️', Suit.S: '♠️', Suit.C: '♣️', Suit.D: '♦️'}
-_SUIT_COLORS = {Suit.H: 'text-red-500', Suit.S: 'text-blue-500',
-                Suit.C: 'text-green-500', Suit.D: 'text-yellow-500'}
-
-
-class Card:
-
-    def __init__(self, identifier: str):
-        if len(identifier) != 2:
-            raise Exception(f'Invalid card identifier: {identifier}')
-
-        value_id = identifier[0]
-        suit_id = identifier[1]
-
-        self.value = value_id if value_id != '0' else '10'
-        self.suit = Suit(suit_id)
-
-    def hcp(self):
-        hcp_values = {'J': 1, 'Q': 2, 'K': 3, 'A': 4}
-        return hcp_values[self.value] if self.value in hcp_values else 0
-
-    def cmp(self):
-        facecard_values = {'J': 11, 'Q': 12, 'K': 13, 'A': 14}
-        return (self.suit.value, facecard_values[self.value] if self.value in facecard_values else int(self.value))
+class Stage(Enum):
+    Auction = 0
+    Tricks = 1
 
 
 class Game:
 
     @classmethod
-    def from_row(cls, row):
-        return Game(row['id'], row['seed'], Direction(row['dealer']), Direction(row['direction_to_play']))
+    def from_row(cls, row) -> Self:
+        return Game(
+            id=row['id'],
+            seed=row['seed'],
+            dealer=Direction(row['dealer']),
+            direction_to_play=Direction(row['direction_to_play']),
+            bids=Bid.decodeArray(row['bids'])
+        )
 
     def __init__(self,
                  id: int,
                  seed: str,
                  dealer: Direction,
                  direction_to_play: Direction,
-                 bids: str | None = None,
+                 bids: list[Bid] | None = None,
                  contract: str | None = None,
                  declarer: Direction | None = None,
                  finished_tricks: str | None = None,
                  current_trick_partial: str | None = None):
+
         self.id = id
         self.seed = seed
         self.dealer = dealer
         self.direction_to_play = Direction(direction_to_play)
+
+        self.bids = bids
+        advancing_bids = [bid for bid in bids if isinstance(bid, AdvancingBid)]
+        self.current_bid = max(advancing_bids) if len(
+            advancing_bids) > 0 else None
+        print(self.current_bid)
+
+        self.possible_pass_bid = PassBid()
+        self.possible_next_bids = [
+            [AdvancingBid(number=BidNumber(number), trump=trump)
+             for trump in Trump]
+            for number in range(1, 8)
+        ]
 
         with seed_random(seed):
             self.deck = [Card(card_id)
@@ -114,12 +77,7 @@ class Game:
             Direction.E: Hand(self.deck[39:])
         }
 
-
-class Hand:
-
-    def __init__(self, cards: list[Card]):
-        self.cards = sorted(cards, key=lambda card: card.cmp())
-        self.hcp = sum([card.hcp() for card in self.cards])
+        self.stage = Stage.Auction if contract == None else Stage.Tricks
 
 
 def get_player_directions(you: Direction):
@@ -167,3 +125,15 @@ def load_game(id):
         flash("issue with the db")
 
     return None
+
+
+def update_bids(id, bids):
+    db = get_db()
+
+    try:
+        db.execute(
+            "UPDATE game SET bids=? WHERE id=?", (bids, id,)
+        )
+        db.commit()
+    except db.IntegrityError:
+        pass

@@ -2,56 +2,26 @@
 {% from "components/card.html.jinja" import render_card, render_cardback %}
 {% block title %} Play {% endblock %}
 {% block content %}
-<div class="flex justify-between w-full">
-    <p>Bridge[rton]</p>
-    <a href={{url_for('lobby', id=game.id)}}>Return to lobby</a>
-</div>
-<p>{{ game.direction_to_play.verbose() }} to play</p>
-<hr />
-<br />
+<div class="h-screen w-screen flex flex-col">
+    <div class="w-full flex flex-col">
+        <div class="flex justify-between w-full">
+            <p>Bridge[rton]</p>
+            <a href={{url_for('lobby', id=game.id)}}>Return to lobby</a>
+        </div>
+        <p>{{ game.direction_to_play.verbose() }} to play</p>
+        <hr />
+    </div>
+    <div class="flex-1 w-full relative overflow-hidden">
+        <div class="absolute w-full h-full">
+            {% include "partials/board.html.jinja"%}
+        </div>
+        <div class="absolute w-full h-full pointer-events-none">
+            {% include "partials/auction.html.jinja"%}
+        </div>
+    </div>
 
-<div class="w-screen">
-    <div class="w-full flex justify-center">
-        <div class="w-fit">
-            <p class="font-semibold">{{ players.partner.verbose() }}{{ " (Dealer)" if game.dealer == players.partner }}
-            </p>
-            <div class="flex -space-x-4">
-                {% for card in game.hands[players.partner].cards %}
-                {{ render_cardback() }}
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-    <div class="w-full flex justify-between">
-        <div class="flex flex-col items-start">
-            <p class="font-semibold">{{ players.left.verbose() }}{{ " (Dealer)" if game.dealer == players.left }}</p>
-            <div class="flex flex-col -space-y-16">
-                {% for card in game.hands[players.left].cards %}
-                {{ render_cardback() }}
-                {% endfor %}
-            </div>
-        </div>
-        <div class="flex flex-col items-end">
-            <p class="font-semibold">{{ players.right.verbose() }}{{ " (Dealer)" if game.dealer == players.right }}</p>
-            <div class="flex flex-col -space-y-16">
-                {% for card in game.hands[players.right].cards %}
-                {{ render_cardback() }}
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-    <div class="h-6"></div>
-    <div class="w-full flex justify-center">
-        <div>
-            <p class="font-semibold">{{ players.you.verbose() }}{{ " (Dealer)" if game.dealer == players.you }}</p>
-            <p class="text-sm">{{game.hands[players.you].hcp}} HCP</p>
-            <div class="flex space-x-0.5">
-                {% for card in game.hands[players.you].cards %}
-                {{ render_card(card.value, card.suit.emoji(), card.suit.color()) }}
-                {% endfor %}
-            </div>
-        </div>
-    </div>
 </div>
+
+
 
 {% endblock %}

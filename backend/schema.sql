@@ -8,7 +8,7 @@ CREATE TABLE game (
     dealer TEXT, -- NSEW
 
     -- mutable
-    direction_to_play, TEXT -- NSEW
+    direction_to_play TEXT, -- NSEW
 
     -- auction only
     bids TEXT, -- format TBD

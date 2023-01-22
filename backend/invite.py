@@ -1,17 +1,17 @@
 from backend.db import get_db
-from backend.game import Direction
+from backend.game.game import Direction
 
 
 class GameInvite:
-
-    @classmethod
-    def from_row(cls, row):
-        return GameInvite(row['game_id'], row['token'], row['direction'])
 
     def __init__(self, game_id: str, token: str, direction: str):
         self.token = token
         self.game_id = game_id
         self.direction = Direction(direction)
+
+    @classmethod
+    def from_row(cls, row):
+        return GameInvite(row['game_id'], row['token'], row['direction'])
 
 
 def load_game_invites(game_id):
