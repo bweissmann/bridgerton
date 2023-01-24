@@ -1,8 +1,8 @@
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
-from backend.game.bid import Bid
-from backend.game.game import Stage, load_game, update_bids
+from backend.game.bid import AdvancingBid, Bid
+from backend.game.game import Stage, load_game
 
 from backend.invite import load_invite_from_token
 
@@ -29,11 +29,11 @@ def bid():
     if game.direction_to_play != invite.direction:
         return f"invalid action: it isn't your turn ({invite.direction.verbose()}), its { game.direction_to_play.verbose()}'s turn"
 
-    if game.current_bid >= bid:
+    if not bid.is_pass() and game.current_bid >= bid:
         return f"invalid action: attempting to bid {bid.display()}. must bid higher than the current bid ({game.current_bid.display()})"
 
-    game.bids.append(bid)
+    next_game = game.make_bid(bid)
 
-    update_bids(game.id, Bid.encodeArray(bids=game.bids))
+    next_game.save()
 
     return redirect(url_for('play', token=token))

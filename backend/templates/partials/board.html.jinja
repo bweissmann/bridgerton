@@ -1,10 +1,10 @@
 <div class="w-full h-full flex flex-col overflow-hidden py-6 px-2">
     {# top #}
     <div class="w-full flex justify-center">
-        <div class="w-fit">
+        <div class="w-fit  {{ 'bg-slate-200' if game.direction_to_play == players.partner }}">
             <p class="font-semibold">{{ players.partner.verbose() }}{{ " (Dealer)" if game.dealer ==
                 players.partner
-                }}
+                }}<a href="{{url_for('play', token=players.tokens.partner)}}">⏎</a>
             </p>
             <div class="flex -space-x-4">
                 {% for card in game.hands[players.partner].cards %}
@@ -15,10 +15,10 @@
     </div>
     {# sides #}
     <div class="flex-1 w-full flex items-center justify-between">
-        <div class="flex flex-col items-start">
+        <div class="flex flex-col items-start {{ 'bg-slate-200' if game.direction_to_play == players.left }}">
             <p class="font-semibold">{{ players.left.verbose() }}{{ " (Dealer)" if game.dealer ==
                 players.left
-                }}
+                }}<a href="{{url_for('play', token=players.tokens.left)}}">⏎</a>
             </p>
             <div class="flex flex-col -space-y-14">
                 {% for card in game.hands[players.left].cards %}
@@ -26,10 +26,10 @@
                 {% endfor %}
             </div>
         </div>
-        <div class="flex flex-col items-end">
+        <div class="flex flex-col items-end  {{ 'bg-slate-200' if game.direction_to_play == players.right }}">
             <p class="font-semibold">{{ players.right.verbose() }}{{ " (Dealer)" if game.dealer ==
                 players.right
-                }}
+                }}<a href="{{url_for('play', token=players.tokens.right)}}">⏎</a>
             </p>
             <div class="flex flex-col -space-y-14">
                 {% for card in game.hands[players.right].cards %}
@@ -39,9 +39,9 @@
         </div>
     </div>
     {# bottom #}
-    <div class="w-full flex justify-center">
+    <div class="w-full flex justify-center  {{ 'bg-slate-200' if game.direction_to_play == players.you }}">
         <div>
-            <p class="font-semibold">{{ players.you.verbose() }}{{ " (Dealer)" if game.dealer == players.you
+            <p class="font-semibold">{{ players.you.verbose() }}{{ " (Dealer)" if game.direction_to_play == players.you
                 }}
             </p>
             <p class="text-sm">{{game.hands[players.you].hcp}} HCP</p>

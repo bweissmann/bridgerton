@@ -34,6 +34,7 @@ class Trump(Enum):
         return ords[self]
 
 
+@total_ordering
 class Bid(ABC):
 
     @abstractmethod
@@ -41,7 +42,7 @@ class Bid(ABC):
         pass
 
     @abstractmethod
-    def encode(self):
+    def encode(self) -> str:
         pass
 
     @abstractmethod
@@ -50,6 +51,18 @@ class Bid(ABC):
 
     def __repr__(self) -> str:
         return self.encode()
+
+    @abstractmethod
+    def __eq__(self, other):
+        return isinstance(other, PassBid)
+
+    @abstractmethod
+    def __gt__(self, other):
+        return False
+
+    @abstractmethod
+    def is_pass(self) -> bool:
+        pass
 
     @classmethod
     def decode(cls, encoding: str) -> Self:
@@ -60,6 +73,10 @@ class Bid(ABC):
             number=BidNumber(int(encoding[0])),
             trump=Trump(encoding[1:])
         )
+
+    @classmethod
+    def decode_optional(cls, encoding: str | None) -> Self | None:
+        return None if encoding == None else cls.decode(encoding)
 
     @classmethod
     def decodeArray(cls, encoded_bids: str | None) -> list[Self]:
@@ -75,6 +92,9 @@ class Bid(ABC):
 
 class PassBid(Bid):
 
+    def is_pass(self):
+        return True
+
     def color(self):
         return 'text-black'
 
@@ -84,13 +104,21 @@ class PassBid(Bid):
     def display(self):
         return 'Pass'
 
+    def __eq__(self, other):
+        return isinstance(other, PassBid)
 
-@total_ordering
+    def __gt__(self, other):
+        return False
+
+
 class AdvancingBid(Bid):
 
     def __init__(self, number: BidNumber, trump: Trump):
         self.number = number
         self.trump = trump
+
+    def is_pass(self):
+        return False
 
     def color(self):
         trump_suit = self.trump.as_suit()
@@ -108,10 +136,22 @@ class AdvancingBid(Bid):
         return f'{self.number.value}{trump_suit.emoji() if trump_suit else "NT"}'
 
     def __eq__(self, other):
-        return self.number == other.number and self.trump == other.trump
+        return isinstance(other, AdvancingBid) and self.number == other.number and self.trump == other.trump
 
     def __gt__(self, other):
+        if not isinstance(other, AdvancingBid):
+            return True
+
         if self.number.value > other.number.value:
             return True
 
         return self.number.value == other.number.value and self.trump.ordinal() > other.trump.ordinal()
+
+
+def last_n_passes(bids: list[Bid], n: int) -> bool:
+    return len([bid for bid in bids[-n:] if bid.is_pass()]) == n
+
+
+def highest_bid(bids: list[Bid]) -> AdvancingBid | None:
+    advancing_bids = [bid for bid in bids if isinstance(bid, AdvancingBid)]
+    return max(advancing_bids) if len(advancing_bids) > 0 else None

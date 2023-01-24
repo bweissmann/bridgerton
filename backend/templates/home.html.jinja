@@ -1,8 +1,17 @@
 {% extends "layout.html.jinja" %}
 {% block title %} Home {% endblock %}
 {% block content %}
-<h1>Bridgerton</h1>
-<form action={{ url_for('new') }} method="post">
-    <button type="submit" class="font-bold">New Game</button>
-</form>
-{% endblock %}
+<div class="p-4">
+    <h1 class="text-lg">Bridgerton</h1>
+    <form action="{{ url_for('new') }}" method="post"
+        class="border rounded w-fit my-2 hover:bg-slate-100 hover:shadow-sm transition">
+        <button type="submit" class="font-semibold px-3 py-1">New Game</button>
+    </form>
+    <div class="w-fit">
+        <a href="{{ url_for('join') }}" class="no-underline">
+            <div class="border px-3 py-1 rounded hover:bg-slate-100 hover:shadow-sm transition">
+                <span class="font-semibold">Join Game</span>
+            </div>
+        </a>
+    </div>
+    {% endblock %}

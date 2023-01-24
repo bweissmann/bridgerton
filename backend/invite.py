@@ -9,6 +9,9 @@ class GameInvite:
         self.game_id = game_id
         self.direction = Direction(direction)
 
+    def __repr__(self):
+        return f"[Invite for {self.direction} of game {self.game_id} {self.token}]"
+
     @classmethod
     def from_row(cls, row):
         return GameInvite(row['game_id'], row['token'], row['direction'])

@@ -1,0 +1,13 @@
+{% extends "layout.html.jinja" %}
+{% block title %} Home {% endblock %}
+{% block content %}
+<div>
+    <span>Games</span>
+    <div class="flex flex-col">
+        <a href="{{url_for('home')}}" class="mb-4">Home</a>
+        {% for id in game_ids %}
+        <a href="{{ url_for('lobby', id=id)}}">Table {{id}}</a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

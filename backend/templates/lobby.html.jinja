@@ -1,10 +1,24 @@
 {% extends "layout.html.jinja" %}
 {% block title %} Lobby {% endblock %}
 {% block content %}
-<p>Join game</p>
-<div class="flex flex-col">
-    {% for invite in invites %}
-    <a href={{ url_for('play', token=invite.token) }}>Join as {{invite.direction.verbose()}}</a>
-    {% endfor %}
+<div class="w-screen h-screen flex items-center justify-center">
+    <div class="flex flex-col items-center space-y-8">
+        <p>Table {{game.id}}</p>
+        <div class="flex flex-col items-center w-fit p-4">
+            <div>{{ join_link(invites_by_direction['N']) }}</div>
+            <div class="flex space-x-16 my-8">
+                <div>{{ join_link(invites_by_direction['W']) }}</div>
+                <div>{{ join_link(invites_by_direction['E']) }}</div>
+            </div>
+            <div>{{ join_link(invites_by_direction['S']) }}</div>
+        </div>
+    </div>
 </div>
 {% endblock %}
+
+{% macro join_link(invite) %}
+<div class="border rounded px-2 py-2">
+    <a href="{{ url_for('play', token=invite.token) }}" class="no-underline font-medium">Join as
+        {{invite.direction.verbose()}}</a>
+</div>
+{% endmacro %}

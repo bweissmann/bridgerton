@@ -1,27 +1,40 @@
 {% extends "layout.html.jinja" %}
 {% from "components/card.html.jinja" import render_card, render_cardback %}
 {% block title %} Play {% endblock %}
+{% block head %}
+{{super() }}
+<script lang="js">
+    document.addEventListener('keyup', (event) => {
+        if (event.key == 'Tab') {
+            window.location.href = "{{url_for('play', token=players.tokens.left)}}"
+        }
+    })
+</script>
+{% endblock %}
 {% block content %}
 <div class="h-screen w-screen flex flex-col">
     <div class="w-full flex flex-col">
         <div class="flex justify-between w-full">
             <p>Bridge[rton]</p>
-            <a href={{url_for('lobby', id=game.id)}}>Return to lobby</a>
+            <a href="{{url_for('lobby', id=game.id)}}">Return to lobby</a>
         </div>
         <p>{{ game.direction_to_play.verbose() }} to play</p>
         <hr />
     </div>
-    <div class="flex-1 w-full relative overflow-hidden">
+    <div class=" flex-1 w-full relative overflow-hidden">
         <div class="absolute w-full h-full">
             {% include "partials/board.html.jinja"%}
         </div>
+        {% if game.stage.is_auction() %}
         <div class="absolute w-full h-full pointer-events-none">
             {% include "partials/auction.html.jinja"%}
         </div>
+        {% elif game.stage.is_no_game() %}
+        <div>No game!</div>
+        {% elif game.stage.is_tricks() %}
+        <div>Play Ball!</div>
+        {% endif %}
     </div>
 
 </div>
-
-
-
 {% endblock %}
