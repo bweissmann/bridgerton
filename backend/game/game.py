@@ -224,14 +224,14 @@ def load_game(id):
     return None
 
 
-def load_all_game_ids():
+def load_all_games():
     db = get_db()
     try:
         rows = db.execute(
-            "SELECT id FROM game"
+            "SELECT * FROM game"
         ).fetchall()
 
-        return [row['id'] for row in rows]
+        return [Game.from_row(row) for row in rows]
 
     except db.IntegrityError:
         flash("issue with the db")

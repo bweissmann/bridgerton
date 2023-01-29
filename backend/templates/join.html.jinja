@@ -5,8 +5,16 @@
     <span>Games</span>
     <div class="flex flex-col">
         <a href="{{url_for('home')}}" class="mb-4">Home</a>
-        {% for id in game_ids %}
-        <a href="{{ url_for('lobby', id=id)}}">Table {{id}}</a>
+        {% for game in games %}
+        <a href="{{ url_for('lobby', id=game.id)}}">Table {{game.id}}
+            {% if game.contract %}
+            ({{game.contract ~ " by " ~ game.declarer.value}})
+            {% elif game.stage.is_no_game() %}
+            (no game)
+            {% else %}
+            (auction)
+            {% endif %}
+        </a>
         {% endfor %}
     </div>
 </div>

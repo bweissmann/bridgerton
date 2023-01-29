@@ -1,11 +1,15 @@
-{% macro bidding_tile(bid) %}
+{% macro bidding_tile(bid, active) %}
 <div class="flex-1 basis-0 flex justify-center">
+    {% if active %}
     <form action="{{ url_for('api.bid') }}" class=" w-full {{bid.color()}}" method="post">
         <input type="hidden" name="token" value={{invite.token}} />
         <input type="hidden" name="bid" value={{bid.encode()}} />
         <input type="submit" value={{bid.display()}}
             class="w-full border rounded-sm px-2 cursor-pointer hover:bg-slate-100 transition hover:border-slate-300" />
     </form>
+    {% else %}
+    <button disabled class="bg-slate-50 text-slate-400 w-full border rounded-sm px-2">{{bid.display()}}</button>
+    {% endif %}
 </div>
 {% endmacro %}
 
@@ -18,7 +22,7 @@
             <div class="flex space-x-2">
                 <p class="w-4">{{bids_by.direction.value}}</p>
                 {% for bid in bids_by.bids %}
-                <div class="border rounded-sm px-2">{{bid}}</div>
+                <div class="border rounded-sm px-2 {{bid.color()}}">{{bid.display()}}</div>
                 {% endfor %}
             </div>
             {% endfor %}
@@ -30,12 +34,12 @@
             {% for row in game.possible_next_bids %}
             <div class="flex w-full">
                 {% for bid in row %}
-                {{ bidding_tile(bid) }}
+                {{ bidding_tile(bid, bid.__gt__(game.current_bid) and game.direction_to_play == players.you) }}
                 {% endfor %}
             </div>
             {% endfor %}
             <div class="flex w-full justify-center">
-                {{ bidding_tile(game.possible_pass_bid) }}
+                {{ bidding_tile(game.possible_pass_bid, game.direction_to_play == players.you) }}
             </div>
         </div>
     </div>

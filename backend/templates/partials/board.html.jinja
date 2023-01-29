@@ -1,3 +1,4 @@
+{% from "components/card.html.jinja" import render_card, render_cardback %}
 <div class="w-full h-full flex flex-col overflow-hidden py-6 px-2">
     {# top #}
     <div class="w-full flex justify-center">
@@ -44,10 +45,16 @@
             <p class="font-semibold">{{ players.you.verbose() }}{{ " (Dealer)" if game.direction_to_play == players.you
                 }}
             </p>
+            {% if game.stage.is_auction() %}
             <p class="text-sm">{{game.hands[players.you].hcp}} HCP</p>
+            {% endif %}
             <div class="flex space-x-0.5">
                 {% for card in game.hands[players.you].cards %}
-                {{ render_card(card.value, card.suit.emoji(), card.suit.color()) }}
+                {{ render_card(
+                card.value,
+                card.suit.emoji(),
+                card.suit.color(),
+                game.direction_to_play == players.you) }}
                 {% endfor %}
             </div>
         </div>

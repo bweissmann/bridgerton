@@ -3,7 +3,7 @@ import os
 from flask import request
 from backend.game.bid import Bid
 
-from backend.game.game import create_game, get_player_directions, load_all_game_ids, load_game
+from backend.game.game import create_game, get_player_directions, load_all_games, load_game
 from backend.invite import load_game_invites, load_invite_from_token
 
 
@@ -25,8 +25,8 @@ def create_app():
 
     @app.route("/join")
     def join():
-        game_ids = load_all_game_ids()
-        return render_template('join.html.jinja', game_ids=game_ids)
+        games = load_all_games()
+        return render_template('join.html.jinja', games=games)
 
     @app.route("/lobby/<string:id>")
     def lobby(id):
@@ -49,8 +49,6 @@ def create_app():
         players = get_player_directions(invite.direction, all_invites)
         game = load_game(invite.game_id)
 
-        new_game = game.make_bid(Bid.decode('X'))
-        print(new_game.dealer, new_game.contract)
         return render_template('play.html.jinja', game=game, invite=invite, players=players)
 
     @app.route("/newgame", methods=["POST"])

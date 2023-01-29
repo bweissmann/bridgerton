@@ -1,5 +1,6 @@
-{% macro render_card(value, suit, color) %}
-<div class="rounded border bg-white w-16 h-20 flex flex-col px-1 justify-between {{ color }}">
+{% macro render_card(value, suit, color, clickable) %}
+<div
+    class="rounded border bg-white w-16 h-20 flex flex-col px-1 justify-between {{ color }} {{ 'transition cursor-pointer hover:-translate-y-3 hover:scale-105 hover:shadow-md' if clickable }}">
     <div class="flex justify-start"><span>{{value}}{{suit}}</span></div>
     <div class="flex justify-end"><span>{{value}}{{suit}}</span></div>
 </div>

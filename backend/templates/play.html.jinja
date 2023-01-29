@@ -1,5 +1,4 @@
 {% extends "layout.html.jinja" %}
-{% from "components/card.html.jinja" import render_card, render_cardback %}
 {% block title %} Play {% endblock %}
 {% block head %}
 {{super() }}
@@ -19,6 +18,9 @@
             <a href="{{url_for('lobby', id=game.id)}}">Return to lobby</a>
         </div>
         <p>{{ game.direction_to_play.verbose() }} to play</p>
+        {% if game.contract %}
+        <p>Contract: {{game.contract.display()}} by {{game.declarer.value}}/{{game.declarer.partner().value}}</p>
+        {% endif %}
         <hr />
     </div>
     <div class=" flex-1 w-full relative overflow-hidden">
